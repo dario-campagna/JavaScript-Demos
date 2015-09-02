@@ -7,7 +7,7 @@
 		Accessing The View-Model Inside The Link Function When Using Controller-As In AngularJS
 	</title>
 
-	<link rel="stylesheet" type="text/css" href="./demo.css"></link>
+	<link rel="stylesheet" type="text/css" href="./demo.css">
 </head>
 <body>
 
@@ -50,7 +50,7 @@
 		// I control the view-model for the widget.
 		angular.module( "Demo" ).controller(
 			"WidgetController",
-			function WidgetController( $scope ) {
+			function WidgetController() {
 
 				// Using this pattern allows us to maintain a reference to the THIS 
 				// scope as a means to "reveal" public properties and methods for use
@@ -58,13 +58,11 @@
 				// lexical binding which can be referenced inside of closures. 
 				var vm = this;
 
-				// Since we are using the Controller instance as the view model, we
-				// can use the incoming isolate $scope as the ReactJS-inspired "props" 
-				// object. I feel like this creates a really nice separation of origins.
-				var props = $scope.props = $scope;
-
-
-				vm.clickCount = ( props.startingAt || 0 );
+				// Since we are using the Controller instance as the view model and
+				// bounding the isolate $scope properties to the Controller, we can refer
+				// the isolated property using (the lexical binging to) THIS. We do not need
+				// the $scope object.
+				vm.clickCount = ( vm.startingAt || 0 );
 
 				// Expose the public API.
 				vm.incrementClickCount = incrementClickCount;
@@ -90,7 +88,8 @@
 		// --------------------------------------------------------------------------- //
 
 
-		// I define the widget directive, gluing the template to a controller.
+		// I define the widget directive, gluing the template to a controller, and bounding
+		// the the isolated scope properties to the controller.
 		angular.module( "Demo" ).directive(
 			"bnWidget",
 			function WidgetDirective() {
@@ -102,6 +101,9 @@
 				// our template and our link function. As such, AngularJS will expose the
 				// controller on the scope using the given variable name.
 				// --
+				// NOTE: Setting the "bindToController" property to true enables the isolat
+				// scope properties to be bound to the Controller, not the $scope Object.
+				// --
 				// CAUTION: Since we defining the "controller" property, the current 
 				// controller will automatically be injected into the link() function
 				// as the fourth argument.
@@ -112,7 +114,8 @@
 					scope: {
 						startingAt: "=?"
 					},
-					templateUrl: "widget.htm"
+					templateUrl: "widget.htm",
+					bindToController: true
 				});
 
 
